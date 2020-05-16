@@ -62,7 +62,7 @@ let width, height, margin;
 setDimensions();
 
 // Resize the canvas whenever the window is resized.
-window.addEventListener("resize", setDimensions());
+window.addEventListener("resize", setDimensions);
 
 // Game loop
 let deltaTime, lastTime;
@@ -87,11 +87,17 @@ function createGrid() {
   let cell, marginX, marginY;
 
   // Portrait
-
+  if (((width - margin * 2) * GRID_ROWS) / GRID_COLS < height - margin * 2) {
+    cell = (width - margin * 2) / GRID_COLS;
+    marginX = margin;
+    marginY = (height - cell * GRID_ROWS) / 2;
+  }
   // Landscape
-  cell = (height - margin * 2) / GRID_ROWS;
-  marginX = (width - cell * GRID_COLS) / 2;
-  marginY = margin;
+  else {
+    cell = (height - margin * 2) / GRID_ROWS;
+    marginX = (width - cell * GRID_COLS) / 2;
+    marginY = margin;
+  }
 
   // Populate the grid
   for (let i = 0; i < GRID_ROWS; i++) {
