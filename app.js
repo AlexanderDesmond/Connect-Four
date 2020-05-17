@@ -51,8 +51,8 @@ class Cell {
       this.owner === null
         ? COLOUR_BACKGROUND
         : this.owner
-        ? COLUR_PLAYER
-        : COLOR_COMPUTER;
+        ? COLOUR_PLAYER
+        : COLOUR_COMPUTER;
 
     // Draw the token.
     context.fillStyle = colour;
@@ -63,7 +63,7 @@ class Cell {
     // Add highlighting.
     if (this.highlight !== null) {
       // Set the colour.
-      colour = this.highlight ? COLOUR_PLAYER : COLOR_COMPUTER;
+      colour = this.highlight ? COLOUR_PLAYER : COLOUR_COMPUTER;
 
       // Draw the border.
       context.lineWidth = this.radius / 4;
@@ -194,7 +194,7 @@ function drawGrid() {
 
 function highlightGrid(event) {
   if (!playerTurn || gameOver) {
-    return;
+    //TODO: return;
   }
 
   highlightCell(event.x, event.y);
@@ -240,7 +240,7 @@ function click(event) {
   }
 
   if (!playerTurn) {
-    return;
+    //TODO: return;
   }
 
   selectCell();
@@ -276,4 +276,9 @@ function selectCell() {
   if (!gameOver) {
     playerTurn = !playerTurn;
   }
+}
+
+function checkWin(row, col) {
+  // test
+  return false;
 }
