@@ -151,4 +151,11 @@ function drawGrid() {
     frameW + margin,
     margin
   );
+
+  // Draw cells.
+  for (let row of grid) {
+    for (let cell of row) {
+      cell.draw(context);
+    }
+  }
 }
