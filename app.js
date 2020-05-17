@@ -12,7 +12,11 @@ const MARGIN = 0.02;
 const GRID_COLS = 7;
 const GRID_ROWS = 6;
 const GRID_DIAMETER = 0.7;
-let grid = [];
+
+// Game variables.
+let grid = [],
+  playerTurn,
+  gameOver;
 
 // Cell class
 class Cell {
@@ -31,7 +35,13 @@ class Cell {
     this.row = row;
     this.col = col;
 
+    this.highlight = null;
     this.owner = null;
+  }
+
+  // Return the cell which contains x and y.
+  contains(x, y) {
+    return x < this.right && x > this.left && y < this.bottom && y > this.top;
   }
 
   // Draw the hole.
@@ -49,6 +59,19 @@ class Cell {
     context.beginPath();
     context.arc(this.cx, this.cy, this.radius, 0, Math.PI * 2);
     context.fill();
+
+    // Add highlighting.
+    if (this.highlight !== null) {
+      // Set the colour.
+      colour = this.highlight ? COLOUR_PLAYER : COLOR_COMPUTER;
+
+      // Draw the border.
+      context.lineWidth = this.radius / 4;
+      context.strokeStyle = colour;
+      context.beginPath();
+      context.arc(this.cx, this.cy, this.radius, 0, Math.PI * 2);
+      context.stroke();
+    }
   }
 }
 
@@ -62,6 +85,9 @@ setDimensions();
 
 // Resize the canvas whenever the window is resized.
 window.addEventListener("resize", setDimensions);
+
+// Track mouse movements to handle highlighting.
+canvas.addEventListener("mousemove", highlightGrid);
 
 // Game loop
 let deltaTime, lastTime;
@@ -78,6 +104,9 @@ function setDimensions() {
 }
 
 function newGame() {
+  playerTurn = Math.random() < 0.5;
+  gameOver = false;
+
   createGrid();
 }
 
@@ -158,4 +187,44 @@ function drawGrid() {
       cell.draw(context);
     }
   }
+}
+
+function highlightGrid(event) {
+  if (!playerTurn || gameOver) {
+    return;
+  }
+
+  highlightCell(event.x, event.y);
+}
+
+function highlightCell(x, y) {
+  let col = null;
+  for (let row of grid) {
+    for (let cell of row) {
+      // Clear existing highlighting.
+      cell.highlight = null;
+
+      // Get the required column.
+      if (cell.contains(x, y)) {
+        col = cell.col;
+      }
+    }
+  }
+
+  // If the column is not found.
+  if (col === null) {
+    return;
+  }
+
+  // Highlight bottom-most empty cell in the column.
+  for (let i = GRID_ROWS - 1; i >= 0; i--) {
+    if (grid[i][col].owner === null) {
+      grid[i][col].highlight = playerTurn;
+
+      // Return the highlighted cell for the AI.
+      return grid[i][col];
+    }
+  }
+
+  return null;
 }
