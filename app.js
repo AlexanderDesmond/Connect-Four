@@ -7,25 +7,24 @@ const COLOUR_PLAYER_BORDER = "olive";
 const COLOUR_COMPUTER = "red";
 const COLOUR_COMPUTER_BORDER = "dakred";
 
-// Game stuff
+// Frame measurements
 const MARGIN = 0.02;
 const GRID_COLS = 7;
 const GRID_ROWS = 6;
 const GRID_DIAMETER = 0.7;
 let grid = [];
 
-// Classes
+// Cell class
 class Cell {
+  // Initialise Cell properties.
   constructor(left, top, width, height, row, col) {
     this.bottom = top + height;
     this.left = left;
     this.right = left + width;
     this.top = top;
     this.radius = (width * GRID_DIAMETER) / 2;
-    // Centre points
-    this.cx = left + width / 2;
-    this.cy = top + height / 2;
-
+    this.cx = left + width / 2; // centre on x-axis
+    this.cy = top + height / 2; // centre on y-axis
     this.width = width;
     this.height = height;
 
@@ -144,6 +143,7 @@ function drawGrid() {
   context.fillStyle = COLOUR_FRAME;
   context.fillRect(cell.left, cell.top, frameW, frameH);
 
+  // Draw the base of the frame.
   context.fillStyle = COLOUR_FRAME_BOTTOM;
   context.fillRect(
     cell.left - margin / 2,
