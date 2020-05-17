@@ -89,6 +89,9 @@ window.addEventListener("resize", setDimensions);
 // Track mouse movements to handle highlighting.
 canvas.addEventListener("mousemove", highlightGrid);
 
+// Handle mouse clicks.
+canvas.addEventListener("click", click);
+
 // Game loop
 let deltaTime, lastTime;
 requestAnimationFrame(gameLoop);
@@ -227,4 +230,50 @@ function highlightCell(x, y) {
   }
 
   return null;
+}
+
+// Handle clicking.
+function click(event) {
+  if (gameOver) {
+    newGame();
+    return;
+  }
+
+  if (!playerTurn) {
+    return;
+  }
+
+  selectCell();
+}
+
+// Handle selection of cells.
+function selectCell() {
+  let highlighting = false;
+
+  // Allow player to place a token in a cell.
+  OUTER: for (let row of grid) {
+    for (let cell of row) {
+      if (cell.highlight !== null) {
+        highlighting = true;
+        cell.highlight = null;
+        cell.owner = playerTurn;
+
+        if (checkWin(cell.row, cell.col)) {
+          gameOver = true;
+        }
+
+        break OUTER;
+      }
+    }
+  }
+
+  // Prohibit clicking on cells which are not empty.
+  if (!highlighting) {
+    return;
+  }
+
+  // Switch player.
+  if (!gameOver) {
+    playerTurn = !playerTurn;
+  }
 }
