@@ -3,9 +3,18 @@ const COLOUR_BACKGROUND = "mintcream";
 const COLOUR_FRAME = "dodgerblue";
 const COLOUR_FRAME_BOTTOM = "royalblue";
 const COLOUR_PLAYER = "yellow";
-const COLOUR_PLAYER_BORDER = "olive";
+const COLOUR_PLAYER_DARK = "olive";
 const COLOUR_COMPUTER = "red";
-const COLOUR_COMPUTER_BORDER = "dakred";
+const COLOUR_COMPUTER_DARK = "darkred";
+const COLOUR_DRAW = "darkgrey";
+const COLOUR_DRAW_DARK = "black";
+const COLOUR_WIN = "black";
+
+// Messages
+const TEXT_COMPUTER = "Computer";
+const TEXT_PLAYER = "Player";
+const TEXT_DRAW = "DRAW";
+const TEXT_WIN = "WINS!";
 
 // Frame measurements
 const MARGIN = 0.02;
@@ -16,7 +25,8 @@ const GRID_DIAMETER = 0.7;
 // Game variables.
 let grid = [],
   playerTurn,
-  gameOver;
+  gameOver,
+  gameTied;
 
 // Cell class
 class Cell {
@@ -109,6 +119,7 @@ function setDimensions() {
 function newGame() {
   playerTurn = Math.random() < 0.5;
   gameOver = false;
+  gameTied = false;
 
   createGrid();
 }
@@ -156,6 +167,7 @@ function gameLoop(currTime) {
   // Draw
   drawBackground();
   drawGrid();
+  drawText();
 
   // Next frame
   requestAnimationFrame(gameLoop);
@@ -189,6 +201,46 @@ function drawGrid() {
     for (let cell of row) {
       cell.draw(context);
     }
+  }
+}
+
+function drawText() {
+  if (!gameOver) return;
+
+  // Set up text.
+  let textSize = grid[0][0].height;
+  context.fillStyle = gameTied
+    ? COLOUR_DRAW
+    : playerTurn
+    ? COLOUR_PLAYER
+    : COLOUR_COMPUTER;
+  context.font = textSize + "px dejavu sans mono";
+  context.lineJoin = "round";
+  context.lineWidth = textSize / 10;
+  context.strokeStyle = gameTied
+    ? COLOUR_DRAW_DARK
+    : playerTurn
+    ? COLOUR_PLAYER_DARK
+    : COLOUR_COMPUTER_DARK;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+
+  // Draw text.
+  let text = gameTied ? TEXT_DRAW : playerTurn ? TEXT_PLAYER : TEXT_COMPUTER;
+  if (gameTied) {
+    context.strokeText(text, width / 2, height / 2);
+    context.fillText(text, width / 2, height / 2);
+  } else {
+    // Set offset
+    let offset = textSize * 0.55;
+
+    // Player / Computer
+    context.strokeText(text, width / 2, height / 2 - offset);
+    context.fillText(text, width / 2, height / 2 - offset);
+
+    // Wins
+    context.strokeText(TEXT_WIN, width / 2, height / 2 + offset);
+    context.fillText(TEXT_WIN, width / 2, height / 2 + offset);
   }
 }
 
@@ -280,5 +332,5 @@ function selectCell() {
 
 function checkWin(row, col) {
   // test
-  return false;
+  return true;
 }
