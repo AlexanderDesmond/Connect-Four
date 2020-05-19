@@ -21,12 +21,14 @@ const MARGIN = 0.02;
 const GRID_COLS = 7;
 const GRID_ROWS = 6;
 const GRID_DIAMETER = 0.7;
+const DELAY_COMP = 0.5;
 
 // Game variables.
 let grid = [],
   playerTurn,
   gameOver,
-  gameTied;
+  gameTied,
+  timeComp;
 
 // Cell class
 class Cell {
@@ -168,6 +170,7 @@ function gameLoop(currTime) {
   lastTime = currTime;
 
   // Update
+  goComputer(deltaTime);
 
   // Draw
   drawBackground();
@@ -176,6 +179,102 @@ function gameLoop(currTime) {
 
   // Next frame
   requestAnimationFrame(gameLoop);
+}
+
+function goComputer(deltaTime) {
+  if (playerTurn || gameOver) return;
+
+  // Computer pauses before it makes a move.
+  if (timeComp > 0) {
+    timeComp -= deltaTime;
+    if (timeComp <= 0) {
+      selectCell();
+    }
+    return;
+  }
+
+  // Set options.
+  let options = [];
+  options[0] = []; // Computer wins.
+  options[1] = []; // Block player from winning.
+  options[2] = []; // No significance.
+  options[3] = []; // Give away a win.
+
+  // Go through columns to determine options.
+  let cell;
+  for (let i = 0; i < GRID_COLS; i++) {
+    cell = highlightCell(grid[0][i].cx, grid[0][i].cy);
+
+    // If the column is full, go to the next column.
+    if (cell === null) {
+      continue;
+    }
+
+    // Check for first options.
+    cell.owner = playerTurn;
+    if (checkWin(cell.row, cell.col)) {
+      options[0].push(i);
+    } else {
+      // Check for second options.
+      cell.owner = !playerTurn;
+      if (checkWin(cell.row, cell.col)) {
+        options[1].push(i);
+      } else {
+        cell.owner = playerTurn;
+
+        // Make sure there is a cell above.
+        if (cell.row > 0) {
+          grid[cell.row - 1][cell.col].owner = !playerTurn;
+
+          // Check for fourth options - don't let player win.
+          if (checkWin(cell.row - 1, cell.col)) {
+            options[3].push(i);
+          }
+
+          // Check for third options - no significance
+          else {
+            options[2].push(i);
+          }
+
+          // Deselect cell above
+          grid[cell.row - 1][cell.col].owner = null;
+        }
+        // No row above, no significant move available.
+        else {
+          options[2].push(i);
+        }
+      }
+    }
+
+    // Cancel highlight and selection.
+    cell.highlight = null;
+    cell.owner = null;
+  }
+
+  // Clear the winning cells.
+  for (let row of grid) {
+    for (let cell of row) {
+      cell.winner = false;
+    }
+  }
+
+  // Randomly select a column in priority order.
+  let col;
+  if (options[0].length > 0) {
+    col = options[0][Math.floor(Math.random() * options[0].length)];
+  } else if (options[1].length > 0) {
+    col = options[1][Math.floor(Math.random() * options[1].length)];
+  } else if (options[2].length > 0) {
+    col = options[2][Math.floor(Math.random() * options[2].length)];
+  } else if (options[3].length > 0) {
+    col = options[3][Math.floor(Math.random() * options[3].length)];
+  }
+
+  // Highlight selected cell.
+  highlightCell(grid[0][col].cx, grid[0][col].cy);
+
+  // Set delay.
+  timeComp = DELAY_COMP;
 }
 
 function drawBackground() {
@@ -251,7 +350,7 @@ function drawText() {
 
 function highlightGrid(event) {
   if (!playerTurn || gameOver) {
-    //TODO: return;
+    return;
   }
 
   highlightCell(event.x, event.y);
@@ -297,7 +396,7 @@ function click(event) {
   }
 
   if (!playerTurn) {
-    //TODO: return;
+    return;
   }
 
   selectCell();
