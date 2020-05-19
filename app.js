@@ -47,6 +47,7 @@ class Cell {
 
     this.highlight = null;
     this.owner = null;
+    this.winner = false;
   }
 
   // Return the cell which contains x and y.
@@ -71,9 +72,13 @@ class Cell {
     context.fill();
 
     // Add highlighting.
-    if (this.highlight !== null) {
+    if (this.winner || this.highlight !== null) {
       // Set the colour.
-      colour = this.highlight ? COLOUR_PLAYER : COLOUR_COMPUTER;
+      colour = this.winner
+        ? COLOUR_WIN
+        : this.highlight
+        ? COLOUR_PLAYER
+        : COLOUR_COMPUTER;
 
       // Draw the border.
       context.lineWidth = this.radius / 4;
@@ -349,6 +354,82 @@ function selectCell() {
 }
 
 function checkWin(row, col) {
-  // test
+  // Get all the cells from each possible direction.
+  let horiz = [],
+    vert = [],
+    diagL = [],
+    diagR = [];
+  for (i = 0; i < GRID_ROWS; i++) {
+    for (let j = 0; j < GRID_COLS; j++) {
+      // Horizontal
+      if (i === row) {
+        horiz.push(grid[i][j]);
+      }
+
+      // Vertical
+      if (j === col) {
+        vert.push(grid[i][j]);
+      }
+
+      // Diagonal, top-left to bottom-right
+      if (i - j === row - col) {
+        diagL.push(grid[i][j]);
+      }
+
+      // Diagonal, top-right to bottom-left
+      if (i + j === row + col) {
+        diagR.push(grid[i][j]);
+      }
+    }
+  }
+
+  // If any direction has four identical tokens in a row, the game has been won.
+  return (
+    connectFour(horiz) ||
+    connectFour(vert) ||
+    connectFour(diagL) ||
+    connectFour(diagR)
+  );
+}
+
+function connectFour(cells = []) {
+  let count = 0,
+    lastOwner = null,
+    fourCells = [];
+
+  for (let i = 0; i < cells.length; i++) {
+    // If the next cell is empty, reset the counter.
+    if (cells[i].owner === null) {
+      count = 0;
+      fourCells = [];
+    }
+
+    // If the next cell has a token belonging to the same owner,
+    // increment the count and push the token to the array.
+    else if (cells[i].owner === lastOwner) {
+      count++;
+      fourCells.push(cells[i]);
+    }
+
+    // If the next cell has a token belonging to a different owner,
+    // set the count to 1, clear the array of previous entries, then push the token to the array.
+    else {
+      count = 1;
+      fourCells = [];
+      fourCells.push(cells[i]);
+    }
+
+    // Set the last owner.
+    lastOwner = cells[i].owner;
+
+    // Handle win condition.
+    if (count === 4) {
+      for (let cell of fourCells) {
+        cell.winner = true;
+      }
+      return true;
+    }
+  }
+
   return false;
 }
