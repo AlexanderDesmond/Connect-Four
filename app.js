@@ -324,6 +324,24 @@ function selectCell() {
     return;
   }
 
+  // Check to see if there is a draw.
+  if (!gameOver) {
+    gameTied = true;
+    OUTER: for (let row of grid) {
+      for (let cell of row) {
+        if (cell.owner === null) {
+          gameTied = false;
+          break OUTER;
+        }
+      }
+    }
+
+    // Set game over.
+    if (gameTied) {
+      gameOver = true;
+    }
+  }
+
   // Switch player.
   if (!gameOver) {
     playerTurn = !playerTurn;
@@ -332,5 +350,5 @@ function selectCell() {
 
 function checkWin(row, col) {
   // test
-  return true;
+  return false;
 }
