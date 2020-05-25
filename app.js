@@ -10,7 +10,7 @@ const COLOUR_DRAW = "darkgrey";
 const COLOUR_DRAW_DARK = "black";
 const COLOUR_WIN = "black";
 
-// Messages
+// Text
 const TEXT_COMPUTER = "Computer";
 const TEXT_PLAYER = "Player";
 const TEXT_DRAW = "DRAW";
@@ -23,7 +23,7 @@ const GRID_ROWS = 6;
 const GRID_DIAMETER = 0.7;
 const DELAY_COMP = 0.5;
 
-// Game variables.
+// Game state variables.
 let grid = [],
   playerTurn,
   gameOver,
@@ -34,6 +34,7 @@ let grid = [],
 class Cell {
   // Initialise Cell properties.
   constructor(left, top, width, height, row, col) {
+    // Cell dimensions and measurements
     this.bottom = top + height;
     this.left = left;
     this.right = left + width;
@@ -44,9 +45,11 @@ class Cell {
     this.width = width;
     this.height = height;
 
+    // Cell rows / columns
     this.row = row;
     this.col = col;
 
+    // Cell state
     this.highlight = null;
     this.owner = null;
     this.winner = false;
@@ -113,6 +116,7 @@ canvas.addEventListener("click", click);
 let deltaTime, lastTime;
 requestAnimationFrame(gameLoop);
 
+// Set canvas dimensions.
 function setDimensions() {
   width = window.innerWidth;
   height = window.innerHeight;
@@ -123,6 +127,7 @@ function setDimensions() {
   newGame();
 }
 
+// Start a new game.
 function newGame() {
   playerTurn = Math.random() < 0.5;
   gameOver = false;
@@ -131,6 +136,7 @@ function newGame() {
   createGrid();
 }
 
+// Create the Connect Four game grid.
 function createGrid() {
   grid = [];
   let cell, marginX, marginY;
@@ -161,6 +167,7 @@ function createGrid() {
   }
 }
 
+// The game loop
 function gameLoop(currTime) {
   // Set last time.
   if (!lastTime) lastTime = currTime;
@@ -181,6 +188,7 @@ function gameLoop(currTime) {
   requestAnimationFrame(gameLoop);
 }
 
+// Handle AI
 function goComputer(deltaTime) {
   if (playerTurn || gameOver) return;
 
@@ -277,11 +285,13 @@ function goComputer(deltaTime) {
   timeComp = DELAY_COMP;
 }
 
+// Draw the background
 function drawBackground() {
   context.fillStyle = COLOUR_BACKGROUND;
   context.fillRect(0, 0, width, height);
 }
 
+// Draw the Connect Four frame and cells
 function drawGrid() {
   // Draw frame.
   let cell = grid[0][0];
@@ -308,6 +318,7 @@ function drawGrid() {
   }
 }
 
+// Handle the drawing of end game text
 function drawText() {
   if (!gameOver) return;
 
@@ -348,6 +359,7 @@ function drawText() {
   }
 }
 
+// Handle the highlighting of winning cells
 function highlightGrid(event) {
   if (!playerTurn || gameOver) {
     return;
@@ -356,6 +368,7 @@ function highlightGrid(event) {
   highlightCell(event.x, event.y);
 }
 
+// Highlight cell
 function highlightCell(x, y) {
   let col = null;
   for (let row of grid) {
@@ -452,6 +465,7 @@ function selectCell() {
   }
 }
 
+// Check if the game is finished.
 function checkWin(row, col) {
   // Get all the cells from each possible direction.
   let horiz = [],
@@ -491,6 +505,7 @@ function checkWin(row, col) {
   );
 }
 
+// Check if there are four identical tokens in a row
 function connectFour(cells = []) {
   let count = 0,
     lastOwner = null,
